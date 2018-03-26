@@ -438,7 +438,6 @@ def topology_relations( polygons, graph_conn, graph_dual, points ):
                     parent[k] = i
                     if graph[k] == inpol:
                         graph[k] = outpol
-                
                 graph[outpol] += graph[inpol]
                 graph[inpol] = []
                 # assert polygons[inpol] is not None
@@ -517,9 +516,12 @@ def obtain_polygons( edges, points ):
     it obtains a set of polygons in the given graph.
     It also discards the edges that don't suround anything.
     """
+    if type(points) != np.array:
+        points = np.array(points)
     lines = separate_lines( edges )
     polygons, conn, dual = tie_polygons( lines, points )
     holed, areas, graph, parent, all_parents = topology_relations( polygons, conn, dual, points )
     holed, areas, graph, parent, parent_info, points = reduce_everything( holed, areas, graph, parent, all_parents, points )
-    return ( holed, graph, points )
+    holed = map( lambda p: map( lambda r: r[:-1], p ), holed )
+    return ( holed, graph, map( tuple, points ) )
 

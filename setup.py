@@ -27,7 +27,7 @@ setup(name='geomtopo2d',
     author_email='rserrano@geomodelr.com',
     license='LGPL',
     packages=['geomtopo2d'],
-    install_requires=['numpy', 'scipy'],
+    install_requires=['numpy', 'scipy', 'rtree', 'shapely'],
     keywords=['geometry', 'topology', '2d'],
     # entry_points = {
     #     'console_scripts': [

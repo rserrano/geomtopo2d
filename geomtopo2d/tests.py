@@ -27,8 +27,8 @@ import sys
 import graphs
 import polygons
 import geometry
-
-import matplotlib.pyplot as plt
+import grid 
+from shapely.geometry import Polygon
 from itertools import product
 
 PROFILE = False
@@ -70,156 +70,65 @@ class Test(unittest.TestCase):
         self.assertEqual(type(holed[0][0][0]), type(int()))
         self.assertEqual(type(holed[-1][-1][-1]), type(int()))
         self.assertEqual(len(graph), len(holed))
-        
         for i in xrange(len(graph)):
-            self.assertIn(i, graph[graph[i][0]])
-
-#     def test_pseudo_circle_from_points( self ):
-#         v = np.array([0.5, 0.3])
-#         v /= la.norm(v)
-#         pts = [ t*v for t in xrange(0, 20) ]
-#         a, b, c = geometry.line_fit2(np.array(pts))
-#         self.assertAlmostEqual(a[0],v[0])
-#         self.assertAlmostEqual(a[1],v[1])
-#         self.assertAlmostEqual(b[0], 0)
-#         self.assertAlmostEqual(b[1], 0)
-#         
-#         pts.append([10, 10])
-#         a, b, c = geometry.line_fit2(np.array(pts))
-#         self.assertAlmostEqual(a[0],v[0])
-#         self.assertAlmostEqual(a[1],v[1])
-#         self.assertAlmostEqual(b[0], 0)
-#         self.assertAlmostEqual(b[1], 0)
-#         return
-#         r = 3
-#         points = []
-#         for t in xrange( 10 ):
-#             x = round(r*math.cos(2*math.pi*(t+5)/20))
-#             y = round(r*math.sin(2*math.pi*(t+5)/20))
-#             points.append([x,y])
-#         for t in xrange( 1, 11 ):
-#             points.append( [-3, t] )
-#         
-#         ln = np.array(points)[10:,:]
-#         self.assertAlmostEqual(geometry.line_fit2(ln)[2],0.0)
-#         ln = ln[:,[1,0]]
-#         self.assertAlmostEqual(geometry.line_fit2(ln)[2],0.0)
-#         
-#         r = 3
-#         points = []
-#         for t in xrange( 10 ):
-#             x = round(r*math.cos(2*math.pi*t/10))
-#             y = round(r*math.sin(2*math.pi*t/10))
-#             points.append([x,y])
-#         
-#         r, c, s= geometry.pseudo_circle_from_points2(np.array(points))
-#         
-#         self.assertAlmostEqual(r, 2.99628191397)
-#         self.assertAlmostEqual(s, 0.047217255364194841)
-#         
-#         r = 3
-#         points = []
-#         for t in xrange( 5 ):
-#             x = round(r*math.cos(2*math.pi*(t+5)/20))
-#             y = round(r*math.sin(2*math.pi*(t+5)/20))
-#             points.append([x,y])
-#         r, c, s= geometry.pseudo_circle_from_points2(np.array(points))
-#         
-#         self.assertAlmostEqual(r, 2.9962819139658272)
-#         self.assertAlmostEqual(s, 0.066775282914078068)
-#         
-#         r = 3
-#         points = []
-#         for t in xrange( 10 ):
-#             x = round(r*math.cos(2*math.pi*(t+5)/20))
-#             y = round(r*math.sin(2*math.pi*(t+5)/20))
-#             points.append([x,y])
-#         for t in xrange( 1, 11 ):
-#             points.append( [t, -3] )
-#         
-#         points = np.array(points)
-#         r, c, s= geometry.pseudo_circle_from_points2(points)
-#         self.assertAlmostEqual(r, 4.8351351883071061)
-#         self.assertAlmostEqual(s, 0.3184479828758664)
-#         
-#         r, c, s = geometry.pseudo_circle_from_points2(points[:10,:])
-#         self.assertAlmostEqual(r, 2.9962819139658281)
-#         self.assertAlmostEqual(s, 0.047217255364194841)
-#         
-#         w = geometry.what_is_fit ( points[10:,:] )
-#         self.assertEqual(w, ("l", 0.0))
-#         w = geometry.what_is_fit ( points[:10,:] )
-#         self.assertEqual(w[0], "c")
-#         
-#         for t in xrange( 11, 31 ):
-#             points = np.append(points, np.array([[t, -3]]), axis=0 )
-#         
-#         w = geometry.what_is_fit ( points[10:,:] )
-#         self.assertEqual(w, ("l", 0.0))
-#         w = geometry.what_is_fit( points )
-#         self.assertAlmostEqual(w[1], 0.23176365560706205)
-#         self.assertEqual(w[0], 'l')
-# 
-#         r = 10
-#         points = []
-#         for t in xrange( 20 ):
-#             x = round(r*math.cos(2*math.pi*(t+10)/40))
-#             y = round(r*math.sin(2*math.pi*(t+10)/40))
-#             points.append([x,y])
-#         for t in xrange( 1, 21 ):
-#             points.append( [t, -10] )
-#         
-#         points = np.array(points)
-#         w = geometry.what_is_fit( points[:20,:] )
-#         self.assertEqual(w[0], 'c')
-#         w = geometry.what_is_fit( points[20:,:] )
-#         self.assertEqual(w[0], 'l')
-#         w = geometry.what_is_fit( points )
-#         self.assertEqual(w[0], 'c')
-#         
-#         r = 30
-#         points = []
-#         for t in xrange( 40 ):
-#             x = round(r*math.cos(2*math.pi*(t+20)/80))
-#             y = round(r*math.sin(2*math.pi*(t+20)/80))
-#             points.append([x,y])
-#         
-#         for t in xrange( 1, 21 ):
-#             points.append( [3*t, -30] )
-#         
-#         xl, yl = points[-1]
-#         for t in xrange( 41 ):
-#             x = round(xl+r*math.cos(2*math.pi*(t+60)/80))
-#             y = round(r*math.sin(2*math.pi*(t+60)/80))
-#             points.append([x,y])
-#         
-#         xl, yl = points[-1]
-#         for t in xrange( 1, 21 ):
-#             points.append( [xl-3*t, yl] )
-#         
-# 
-#         line = [ i for i in xrange(len(points)) ]
-#         line.append(0)
-#         
-#         r = 30
-#         points = []
-#         
-#         for t in xrange( 30 ):
-#             points.append( [t, round(2.0*t/3.0)] )
-#         xl, yl = points[-1]
-#         for t in xrange( 30 ):
-#             points.append( [xl+t, yl-round(2.0*t/3.0)] )
-#         xl, yl = points[-1]
-#         points = list(reversed(points))
-#         
-#         r = 20
-#         for t in xrange( 40 ):
-#             x = round(r*math.cos(2*math.pi*(t+40)/80))
-#             y = round(r*math.sin(2*math.pi*(t+40)/80))
-#             points.append([x,y])
-#         line = [ i for i in xrange(len(points)) ]
-#         line.append(0)
+            if len(graph[i]):
+                self.assertIn(i, graph[graph[i][0]])
+            else:
+                print i, "g", graph[i], "p", holed[i]
+    
+    def test_grid( self ):
+        ex = ["ABAA",
+              "ABBA",
+              "ABAA",
+              "ACCC"]
+        # Get the boundaries of the interpolation.
+        edgese, pointse = grid.boundary_edges( ex )
+        self.assertEqual( pointse, [(0.0, 0.0), (0.0, 3.0), (3.0, 3.0), (3.0, 0.0), (0.5, 3.0), (3.0, 2.5), (1.5, 0.0), (0.5, 0.0)] )
+        self.assertEqual( edgese, [(0, 1), (1, 4), (4, 2), (2, 5), (5, 3), (3, 6), (6, 7), (7, 0)] )
         
+        # Get all the points where polygons are different.
+        pointsb = grid.point_breaks( ex )
+        self.assertEqual(pointsb, [(0.5, 1.0), (2.0, 0.5), (2.5, 1.0), (2.0, 1.5), (0.5, 2.0), (1.5, 2.0), (1.0, 2.5), (2.0, 2.5)])
+        
+        # Get the mid points.
+        edgesm, pointsm = grid.create_mid_points_and_edges( ex, pointse+pointsb )
+        ot = set(pointsm)-set(pointse+pointsb)
+        ot = sorted(list(ot))
+        self.assertEqual(ot, [(0.5, 2.5), (1.5, 2.5)])
+        self.assertEqual(len(set(pointse+pointsb)-set(pointsm)), 0)
+        self.assertEqual(edgesm, [(8, 7), (9, 6), (10, 9), (12, 8), (13, 11), (10, 11), (4, 16), (14, 16), (12, 16), (15, 17), (13, 17), (14, 17), (5, 15)])
+        
+        polygons, cls, points = grid.polygons_from_grid( ex )
+        self.assertEqual(cls, ['A', 'B', 'A', 'C'])
+        self.assertEqual(polygons, [[[9, 6, 3, 5, 15, 17, 13, 11, 10]], [[10, 11, 13, 17, 14, 16, 12, 8, 7, 6, 9]], [[16, 4, 1, 0, 7, 8, 12]], [[14, 17, 15, 5, 2, 4, 16]]])
+        ex = ["ABA",
+              "ABB",
+              "ABA",
+              "ACC"]
+        polygons, cls, points = grid.polygons_from_grid( ex )
+        self.assertEqual(points, [(0.0, 0.0), (0.0, 3.0), (2.0, 3.0), (2.0, 0.0), (0.5, 3.0), (2.0, 2.5), (2.0, 1.5), (2.0, 0.5), 
+                                  (1.5, 0.0), (0.5, 0.0), (0.5, 1.0), (0.5, 2.0), (1.5, 2.0), (1.0, 2.5), (0.5, 2.5), (1.5, 2.5)])
+        self.assertEqual(polygons, [[[11, 10, 9, 8, 7, 6, 12, 15, 13, 14]], [[13, 15, 5, 2, 4, 14]], [[8, 3, 7]], [[14, 4, 1, 0, 9, 10, 11]], [[6, 5, 15, 12]]])
+        self.assertEqual(cls, ['B', 'C', 'A', 'A', 'A'])
+        ex = ["ABAA",
+              "ABBA",
+              "ABAA"]
+        
+        polygons, cls, points = grid.polygons_from_grid( ex )
+        self.assertEqual(polygons, [[[6, 3, 2, 5, 11, 10, 9]], [[5, 4, 8, 7, 6, 9, 10, 11]], [[4, 1, 0, 7, 8]]])
+        self.assertEqual(cls, ['A', 'B', 'A'])
+        self.assertEqual(points, [(0.0, 0.0), (0.0, 2.0), (3.0, 2.0), (3.0, 0.0), (0.5, 2.0), (1.5, 2.0), (1.5, 0.0), (0.5, 0.0), (0.5, 1.0), (2.0, 0.5), (2.5, 1.0), (2.0, 1.5)])
+        ex = ["AAAA",
+              "ABCA",
+              "AAAA",
+              "CCAA",
+              "CCCC"]
+        polygons, cls, points = grid.polygons_from_grid( ex )
+        self.assertEqual(polygons, [[[17, 9, 6, 7, 16, 8]], [[4, 0, 3, 5, 15, 14, 13], [9, 17, 12, 11, 10, 16, 7, 6]], [[16, 10, 11, 12, 17, 8]], [[4, 13, 14, 15, 5, 2, 1]]])
+        self.assertEqual(points, [(0.0, 0.0), (0.0, 4.0), (3.0, 4.0), (3.0, 0.0), (0.0, 2.5), (3.0, 3.5), (0.5, 1.0), (1.0, 0.5), (1.5, 1.0), 
+                                  (1.0, 1.5), (2.0, 0.5), (2.5, 1.0), (2.0, 1.5), (1.0, 2.5), (1.5, 3.0), (2.0, 3.5), (1.5, 0.5), (1.5, 1.5)])
+        self.assertEqual(cls, ['B', 'A', 'C', 'C'])
+        print grid.visi
 def main(args=None):
     unittest.main()
 

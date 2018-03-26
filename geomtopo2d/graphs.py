@@ -21,7 +21,6 @@ from scipy.stats import norm as normal
 import itertools
 import math
 import numpy as np
-import rtree
 from numpy import linalg as la
 
 def srtedg( e ):
