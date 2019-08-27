@@ -16,7 +16,9 @@ You should have received a copy of the GNU Lesser General Public License
 along with Geomtopo2d.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from polygons import obtain_polygons
+from __future__ import print_function, division
+
+from .polygons import obtain_polygons
 import rtree
 import math
 import numpy as np
@@ -30,7 +32,7 @@ def boundary_edges( grid ):
     edges = []
     # Obtain the left edge.
     last = 0
-    for x in xrange(len(grid)-1):
+    for x in range(len(grid)-1):
         if grid[x][0] != grid[x+1][0]:
             edges.append( (last, len(points)) )
             last = len(points)
@@ -38,7 +40,7 @@ def boundary_edges( grid ):
     edges.append( ( last, 1 ) )
     # Obtain the bottom edge.
     last = 1
-    for x in xrange(len(grid[0])-1):
+    for x in range(len(grid[0])-1):
         if grid[-1][x] != grid[-1][x+1]:
             edges.append( (last, len(points)) )
             last = len(points)
@@ -46,7 +48,7 @@ def boundary_edges( grid ):
     edges.append( ( last, 2 ) )
     # Obtain the right edge.
     last = 2
-    for x in xrange(len(grid)-1):
+    for x in range(len(grid)-1):
         i = len(grid)-x-1
         if grid[i][-1] != grid[i-1][-1]:
             edges.append( (last, len(points)) )
@@ -55,7 +57,7 @@ def boundary_edges( grid ):
     edges.append( ( last, 3 ) )
     # Obtain the top edge.
     last = 3
-    for x in xrange(len(grid[0])-1):
+    for x in range(len(grid[0])-1):
         i = len(grid[0])-x-1
         if grid[0][i] != grid[0][i-1]:
             edges.append( (last, len(points)) )
@@ -66,8 +68,8 @@ def boundary_edges( grid ):
 
 def point_breaks( grid ):
     points = []
-    for y in xrange( 1, len(grid)-1 ):
-        for x in xrange( 1, len(grid[0])-1 ):
+    for y in range( 1, len(grid)-1 ):
+        for x in range( 1, len(grid[0])-1 ):
             # Add breaks in the left line.
             if x == 1:
                 if grid[y][x] != grid[y][x-1]:
@@ -89,8 +91,8 @@ def create_mid_points_and_edges( grid, points ):
         spoints[k] = i
     edges = []
     # Add all midpoints and append the given edges.
-    for y in xrange( len(grid)-1 ):
-        for x in xrange( len(grid[0])-1 ):
+    for y in range( len(grid)-1 ):
+        for x in range( len(grid[0])-1 ):
             midx = x+0.5
             midy = y+0.5
             cnt = 0
@@ -113,8 +115,8 @@ def create_mid_points_and_edges( grid, points ):
                 for e in es:
                     edges.append( (e, l) )
 
-    ret_points = [ -1 for i in xrange( len( spoints ) ) ]
-    for k, v in spoints.iteritems():
+    ret_points = [ -1 for i in range( len( spoints ) ) ]
+    for k, v in spoints.items():
         ret_points[v] = k
     return edges, ret_points
 
@@ -207,6 +209,6 @@ def polygons_from_grid( grid ):
     edges += edgesm
     # Pass the edges to obtain polygons and return.
     polygons, graph, points = obtain_polygons( edges, points )
-    classification = map( lambda p: classify_polygon(grid, p, points), polygons )
+    classification = list(map( lambda p: classify_polygon(grid, p, points), polygons ))
     return polygons, classification, points
 

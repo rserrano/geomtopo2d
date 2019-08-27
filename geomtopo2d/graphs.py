@@ -16,6 +16,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Geomtopo2d.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+from __future__ import print_function, division
+
 from scipy.spatial import Delaunay, distance, cKDTree
 from scipy.stats import norm as normal
 import itertools

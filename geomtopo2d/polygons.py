@@ -16,12 +16,14 @@ You should have received a copy of the GNU Lesser General Public License
 along with Geomtopo2d.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+from __future__ import print_function, division
+
 import math
 import numpy as np
 import rtree
 from numpy import linalg as la
 from shapely.geometry import Polygon
-from geometry import vector_angle
+from .geometry import vector_angle
 
 def separate_lines(edgs):
     """
@@ -95,7 +97,7 @@ def separate_lines(edgs):
             if (e[1], e[0]) in rem_edges:
                 rem_edges.remove((e[1], e[0]))
             else:
-                print e
+                print( e )
                 assert False, "An edge not in to remove" 
     
     equal_edge = lambda e1, e2: (e1[0] == e2[0] and e1[1] == e2[1]) or \
@@ -137,7 +139,7 @@ def separate_lines(edgs):
 
 def signed_polygon_area( polygon, points ):
     area = 0.0
-    for i in xrange( len( polygon ) ):
+    for i in range( len( polygon ) ):
         ni = (i+1)%len(polygon)
         area += ( points[polygon[i]][0]*points[polygon[ni]][1] - points[polygon[i]][1]*points[polygon[ni]][0] )
     return area/2.0
@@ -161,14 +163,14 @@ def tie_polygons( lines, points ):
     """
     # Separate loops in two, let's try to avoid a bug.
     nlines = len(lines)
-    for i in xrange( nlines ):
+    for i in range( nlines ):
         if lines[i][0] == lines[i][-1]:
             leni = len(lines[i])
             # if leni <= 2:
             #     print lines[i]
             #     assert False, "A loop is only two edges or less"
-            lines.append(lines[i][(leni/2):])
-            lines[i] = lines[i][:(leni/2)+1]
+            lines.append(lines[i][(leni//2):])
+            lines[i] = lines[i][:(leni//2)+1]
     
     ends = {}
     for i, l in enumerate(lines):
@@ -184,11 +186,11 @@ def tie_polygons( lines, points ):
             ends[l[0]] = [(i, False)]
     
     # Set of unclassified lines.
-    unclass = set([(i, True) for i in xrange(len(lines))] + [(i, False) for i in xrange(len(lines))])
+    unclass = set([(i, True) for i in range(len(lines))] + [(i, False) for i in range(len(lines))])
    
     # Eliminate all lines that don't suround anything
     to_remove = set()
-    for e, ls in ends.iteritems():
+    for e, ls in ends.items():
         if len(ls) == 1:
             l = ls[0]
             ln = lines[l[0]]
@@ -232,18 +234,18 @@ def tie_polygons( lines, points ):
                 v = np.array(points[nd])-np.array(points[lines[l][1]])
             vs.append( ( l, v, end ) )
         
-        vsang = map( lambda v: vector_angle(vs[0][1], -v[1]), vs[1:] )
-        vsord = [0] + sorted( [i for i in xrange(1, len(vs))], key=lambda i: vsang[i-1] )
+        vsang = list(map( lambda v: vector_angle(vs[0][1], -v[1]), vs[1:] ))
+        vsord = [0] + sorted( [i for i in range(1, len(vs))], key=lambda i: vsang[i-1] )
         
         nxt = []
-        for i in xrange(len(lidx)):
+        for i in range(len(lidx)):
             nxt.append( lidx[vsord[i]] )
         return nxt
     
     # Generate the nexts dictionary.
     nexts = {}
-    for e, ls in ends.iteritems():
-        lo = map( lambda l: l[0], ls )
+    for e, ls in ends.items():
+        lo = list(map( lambda l: l[0], ls ))
         # if len(lo) != len(set(lo)):
         #     print e
         #     print lo
@@ -257,7 +259,7 @@ def tie_polygons( lines, points ):
     def next_line( nend, cl ):
         for i, n in enumerate(nend):
             if n == cl:
-                for j in xrange( 1, len(nend) ):
+                for j in range( 1, len(nend) ):
                     nx = nend[(i+j)%len(nend)]
                     cl = ( nx[0], not nx[1] )
                     return cl
@@ -265,7 +267,7 @@ def tie_polygons( lines, points ):
         assert False
     # Tie all the polygons.
     all_polygons = []
-    graph_dual = [[] for i in xrange(len(lines))]
+    graph_dual = [[] for i in range(len(lines))]
     graph_conn = []
     cpol = 0
     while ( len( unclass ) ):
@@ -293,7 +295,7 @@ def tie_polygons( lines, points ):
             try:
                 unclass.remove(cl)
             except Exception as e:
-                print pr, nexts[end], cl, lines[cl[0]], polygon
+                print( pr, nexts[end], cl, lines[cl[0]], polygon )
                 raise e
             end = polygon[-1]
         
@@ -337,7 +339,7 @@ def containments_all( polygons, to_search, points ):
         
     containments = [[] for p in to_search]
     
-    for i in xrange(len(shpolygons)):
+    for i in range(len(shpolygons)):
         pos = []
         for j in tree.intersection( shpolygons[i].bounds ):
             if shpolygons[j].contains(shpolygons[i]):
@@ -404,7 +406,7 @@ def topology_relations( polygons, graph_conn, graph_dual, points ):
     neg_polygons.sort(key=lambda p: areas[p], reverse=True)
     
     # Find which polygon is a hole to another polygon.
-    parent = [-1 for i in xrange(len(polygons))]
+    parent = [-1 for i in range(len(polygons))]
     coverings = [[] for i in neg_polygons]
     
     # Make parent array of all the polygons that can be reached by neg_polygons, (holes or covering).
@@ -458,24 +460,24 @@ def reduce_everything( holed, areas, graph, parent, all_parents, points ):
     for i, p in enumerate(parent_info):
         trans[p[0]] = i
     parent_info = [ p[1] for p in parent_info ]
-    for i in xrange(len(parent)):
+    for i in range(len(parent)):
         parent[i] = trans[parent[i]]
     
     # Reduce polygons, removing neg polygons.
-    trans = [ -1 for i in xrange(len(holed))]
+    trans = [ -1 for i in range(len(holed))]
     to_rem = set( all_parents )
     cnt = 0
-    for i in xrange(len( holed )):
+    for i in range(len( holed )):
         if not i in to_rem:
             trans[i] = cnt
             cnt += 1
     
-    for i in xrange(len(graph)):
+    for i in range(len(graph)):
         if i in to_rem:
             graph[i] = None
             continue
         rem = []
-        for j in xrange(len(graph[i])):
+        for j in range(len(graph[i])):
             if not graph[i][j] in to_rem:
                 rem.append(trans[graph[i][j]])
         graph[i] = rem
@@ -496,13 +498,13 @@ def reduce_everything( holed, areas, graph, parent, all_parents, points ):
     
     rem_points = sorted(list(rem_points))
     
-    trans = [ -1 for i in xrange(len(points)) ]
+    trans = [ -1 for i in range(len(points)) ]
     for i, n in enumerate(rem_points):
         trans[n] = i
     
     for pol in holed:
         for ring in pol:
-            for i in xrange(len(ring)):
+            for i in range(len(ring)):
                 # assert trans[ring[i]] >= 0
                 ring[i] = trans[ring[i]]
     # Reduce the graphs to a single polygon (edges don't exist anymore, so order is unnecessary and can't really know anything about it).
@@ -522,6 +524,6 @@ def obtain_polygons( edges, points ):
     polygons, conn, dual = tie_polygons( lines, points )
     holed, areas, graph, parent, all_parents = topology_relations( polygons, conn, dual, points )
     holed, areas, graph, parent, parent_info, points = reduce_everything( holed, areas, graph, parent, all_parents, points )
-    holed = map( lambda p: map( lambda r: r[:-1], p ), holed )
-    return ( holed, graph, map( tuple, points ) )
+    holed = list(map( lambda p: list(map( lambda r: r[:-1], p )), holed ))
+    return ( holed, graph, list(map( tuple, points )) )
 
